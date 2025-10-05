@@ -86,13 +86,15 @@ const MENU_GAP = cssNumberVar('--menu-gap', 8);
 const GLYPH_GAP = cssNumberVar('--glyph-gap', 8);
 const BULLET_SIZE = cssNumberVar('--bullet-size', 8);
 const GUIDE_WIDTH = cssNumberVar('--guide-width', 1);
-const GUIDE_OFFSET = cssNumberVar('--guide-offset', -2);
+const GUIDE_OFFSET = cssNumberVar('--guide-offset', 0);
 
 function render() {
   app.innerHTML = '';
   const container = document.createElement('div');
   (state.scopeRootId ? [state.scopeRootId] : state.rootOrder).forEach(id => renderNode(container, id, 0));
   app.appendChild(container);
+  // Defer guide measurement until nodes are in the document
+  requestAnimationFrame(drawGuides);
 }
 
 function renderNode(parent, id, depth){
@@ -101,24 +103,8 @@ function renderNode(parent, id, depth){
   const indentSpacer = document.createElement('div'); indentSpacer.className='indent';
   // base left pad + per-depth indent (computed once)
   indentSpacer.style.width = (ROOT_LEFT_PAD + depth * INDENT_STEP) + 'px';
-  // Guides overlay (absolute inside row)
+  // Guides overlay (absolute inside row). We'll create lines after row is in DOM using measured glyph centers.
   const guides = document.createElement('div'); guides.className='guides';
-  guides.style.width = (ROOT_LEFT_PAD + depth * INDENT_STEP) + 'px';
-  // Compute ancestor chain up to parent, and whether each has a next sibling
-  const ancestors = [];
-  let cur = node.parentId;
-  while (cur) { ancestors.unshift(cur); cur = state.nodes[cur].parentId; }
-  // Draw vertical lines only; align with bullet centers at each ancestor depth
-  ancestors.forEach((aid, i) => {
-    const hasNext = !!nextSiblingId(state, aid);
-    if (!hasNext) return; // only draw when continuation exists
-    const v = document.createElement('div'); v.className='guide-line';
-    // Align the vertical guide exactly with the ancestor bullet center.
-    // i corresponds to ancestor depth (0 = root), so offset is i * INDENT_STEP.
-    const bulletCenter = ROOT_LEFT_PAD + i * INDENT_STEP + MENU_SIZE + MENU_GAP + (BULLET_SIZE/2);
-    v.style.left = (bulletCenter + GUIDE_OFFSET - GUIDE_WIDTH/2) + 'px';
-    guides.appendChild(v);
-  });
   const menu = document.createElement('div'); menu.className='menu';
   // three dots inside the menu chip
   for (let i=0;i<3;i++){ const d=document.createElement('span'); d.className='dot'; menu.appendChild(d); }
@@ -230,6 +216,32 @@ function setCaret(el, offset){
 function insertTextAtCaret(el, txt){
   const sel = window.getSelection(); if(!sel || sel.rangeCount===0) return;
   const r = sel.getRangeAt(0); r.deleteContents(); r.insertNode(document.createTextNode(txt)); r.collapse(false);
+}
+
+function drawGuides(){
+  const rows = document.querySelectorAll('.row');
+  rows.forEach(row => {
+    const id = row.getAttribute('data-id');
+    const guides = row.querySelector('.guides');
+    if (!guides) return;
+    guides.innerHTML = '';
+    const rowRect = row.getBoundingClientRect();
+    guides.style.width = Math.ceil(rowRect.width) + 'px';
+    // Build ancestor chain for the row
+    const chain = [];
+    let ac = state.nodes[id] ? state.nodes[id].parentId : '';
+    while (ac) { chain.unshift(ac); ac = state.nodes[ac].parentId; }
+    chain.forEach(aid => {
+      if (!nextSiblingId(state, aid)) return; // only draw continuation
+      const ag = document.querySelector(`.row[data-id="${aid}"] .glyph`);
+      if (!ag) return;
+      const gr = ag.getBoundingClientRect();
+      const centerX = gr.left + gr.width/2 - rowRect.left + GUIDE_OFFSET;
+      const v = document.createElement('div'); v.className='guide-line';
+      v.style.left = (Math.round(centerX - GUIDE_WIDTH/2)) + 'px';
+      guides.appendChild(v);
+    });
+  });
 }
 
 render();

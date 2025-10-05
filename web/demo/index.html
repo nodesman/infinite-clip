@@ -12,9 +12,9 @@
         --bullet-border-hover: #6f6f6f; /* darker border on hover */
         --bullet-size: 8px;             /* adjust to match target */
         --bullet-ring: 3px;             /* hover ring thickness */
-        --guide-color: #5a5a5a;         /* indent connector color */
+        --guide-color: #8a8a8a;         /* indent connector color */
         --guide-width: 1px;             /* indent connector thickness */
-        --guide-offset: -2px;           /* fine-tune horizontal align (negative = left) */
+        --guide-offset: 0px;            /* fine-tune horizontal align (negative = left) */
         --menu-size: 22px;              /* action chip size */
         --menu-gap: 8px;                /* space between menu and bullet */
         --glyph-gap: 8px;               /* space after bullet before text */
@@ -29,7 +29,7 @@
       .row { display: flex; align-items: center; padding: 12px 10px; border-radius: 6px; position: relative; }
       .row:hover { background: rgba(255,255,255,0.03); }
       /* Indent guides overlay */
-      .guides { position: absolute; left: 0; top: 0; bottom: 0; pointer-events: none; }
+      .guides { position: absolute; left: 0; top: 0; bottom: 0; pointer-events: none; z-index: 1; }
       .guide-line { position: absolute; top: 0; bottom: 0; width: var(--guide-width); background: var(--guide-color); opacity: 0.8; }
       .guide-elbow { position: absolute; height: var(--guide-width); background: var(--guide-color); opacity: 0.9; }
       .glyph { width: var(--bullet-size); height: var(--bullet-size); border-radius: 50%; background: var(--bullet-fill); margin: 0 var(--glyph-gap) 0 0; flex: 0 0 auto; box-sizing: content-box; box-shadow: none; }
