@@ -112,7 +112,9 @@ function renderNode(parent, id, depth){
     const hasNext = !!nextSiblingId(state, aid);
     if (!hasNext) return; // only draw when continuation exists
     const v = document.createElement('div'); v.className='guide-line';
-    const bulletCenter = ROOT_LEFT_PAD + (i+1) * INDENT_STEP + MENU_SIZE + MENU_GAP + (BULLET_SIZE/2);
+    // Align the vertical guide exactly with the ancestor bullet center.
+    // i corresponds to ancestor depth (0 = root), so offset is i * INDENT_STEP.
+    const bulletCenter = ROOT_LEFT_PAD + i * INDENT_STEP + MENU_SIZE + MENU_GAP + (BULLET_SIZE/2);
     v.style.left = (bulletCenter - guideW/2) + 'px';
     guides.appendChild(v);
   });
