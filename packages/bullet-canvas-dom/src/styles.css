@@ -1,0 +1,43 @@
+:root {
+  --canvas-bg: #1f1f1f;
+  --text-fg: #e6e6e6;
+  --bullet-fill: #9a9a9a;
+  --bullet-border-hover: #5e5e5e;
+  --bullet-size: 8px;
+  --bullet-ring: 6px;
+  --guide-color: #8a8a8a;
+  --guide-width: 1px;
+  --guide-offset: 0px;
+  --menu-bg: #3a3a3a;
+  --menu-fg: #d7d7d7;
+  --menu-size: 22px;
+  --menu-gap: 8px;
+  --glyph-gap: 12px;
+  --indent-step: 40px;
+  --root-left-pad: 44px;
+}
+
+.bc-root { background: var(--canvas-bg); color: var(--text-fg); font: 14px/1.7 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
+.bc-container { max-width: 800px; margin: 0; padding: 0; position: relative; }
+.breadcrumbs { display:flex; align-items:center; gap:6px; color:#bdbdbd; font-size: 12px; margin: 0 0 8px var(--root-left-pad); user-select: none; }
+.crumb { color:#d0d0d0; cursor:pointer; padding:2px 4px; border-radius:4px; }
+.crumb:hover { background: rgba(255,255,255,0.06); }
+.crumb.current { color: #ffffff; cursor: default; }
+.crumb-sep { opacity:0.6; }
+.heading { display:flex; align-items:center; padding: 10px 10px 4px 10px; margin-left: 0; }
+.heading .indent { width: var(--root-left-pad); }
+.heading .glyph { margin-right: var(--glyph-gap); opacity: 0; pointer-events: none; }
+.heading-text { font-size: 22px; font-weight: 600; outline: none; flex: 1 1 auto; }
+.row { display: flex; align-items: center; padding: 12px 10px; border-radius: 6px; position: relative; }
+.row:hover { background: rgba(255,255,255,0.03); }
+.guides { position: absolute; left: 0; top: 0; bottom: 0; pointer-events: none; z-index: 1; }
+.guide-line { position: absolute; top: 0; bottom: 0; width: var(--guide-width); background: var(--guide-color); opacity: 0.8; }
+.glyph { width: var(--bullet-size); height: var(--bullet-size); border-radius: 50%; background: var(--bullet-fill); margin: 0 var(--glyph-gap) 0 0; flex: 0 0 auto; box-sizing: content-box; box-shadow: none; }
+.row:hover .glyph { box-shadow: 0 0 0 var(--bullet-ring) var(--bullet-border-hover); }
+.text { flex: 1 1 auto; min-height: 24px; line-height: 1.7; outline: none; }
+.menu { width: var(--menu-size); height: var(--menu-size); border-radius: 50%; background: transparent; color: var(--menu-fg); display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0; margin-right: var(--menu-gap); opacity: 0; transition: opacity 120ms ease, background-color 120ms ease; cursor: pointer; }
+.menu .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--menu-fg); display: inline-block; margin: 0 1px; }
+.row:hover .menu, .row.focused .menu { opacity: 1; background: transparent; }
+.menu:hover { background: var(--menu-bg); }
+.indent { height: 0; flex: 0 0 auto; }
+

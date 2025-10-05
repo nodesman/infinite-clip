@@ -1,0 +1,16 @@
+{
+  "name": "bullet-canvas-dom",
+  "version": "0.1.0",
+  "type": "module",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./styles.css": "./src/styles.css"
+  },
+  "files": ["src"],
+  "sideEffects": ["**/*.css"],
+  "description": "Framework-agnostic DOM outliner with drill-down, guides, and keyboard interactions.",
+  "keywords": ["outliner","dom","editor","tree","bullets","drilldown"],
+  "license": "MIT"
+}
+
