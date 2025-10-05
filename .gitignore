@@ -1,0 +1,8 @@
+# Build outputs
+engine/build/
+engine/build-*/
+*.o
+*.a
+*.wasm
+*.js.map
+.DS_Store
