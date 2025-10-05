@@ -41,6 +41,22 @@ function insertEmptySiblingAfter(state, id){
   setFocus(state, nid, 0);
 }
 
+function appendEmptyChild(state, parentId){
+  const nid = newId();
+  state.nodes[nid] = { id: nid, parentId, text:'', children: [] };
+  state.nodes[parentId].children.push(nid);
+  setFocus(state, nid, 0);
+  return nid;
+}
+
+function ensureTrailingEmptyChild(state, parentId){
+  const ch = state.nodes[parentId].children;
+  if (ch.length === 0) return appendEmptyChild(state, parentId);
+  const lastId = ch[ch.length - 1];
+  if ((state.nodes[lastId].text || '').length > 0) return appendEmptyChild(state, parentId);
+  return null;
+}
+
 function splitAtCaret(state, id, caret){
   const node = state.nodes[id];
   if (caret == null) caret = state.caret;
@@ -124,7 +140,29 @@ function render() {
     });
   }
   container.appendChild(bc);
-  (state.scopeRootId ? [state.scopeRootId] : state.rootOrder).forEach(id => renderNode(container, id, 0));
+  if (state.scopeRootId && state.nodes[state.scopeRootId]) {
+    // Heading row for scoped root
+    const hid = state.scopeRootId;
+    const heading = document.createElement('div'); heading.className='heading'; heading.dataset.id = hid;
+    const indentSpacer = document.createElement('div'); indentSpacer.className='indent';
+    const glyph = document.createElement('div'); glyph.className='glyph'; // anchor for guides
+    const htext = document.createElement('div'); htext.className='heading-text'; htext.contentEditable = 'true'; htext.textContent = state.nodes[hid].text || '';
+    heading.appendChild(indentSpacer); heading.appendChild(glyph); heading.appendChild(htext);
+    container.appendChild(heading);
+    // Enter on heading creates a new child and focuses it
+    htext.addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        const nid = appendEmptyChild(state, hid);
+        renderAndFocus(nid, 0);
+      }
+    });
+    htext.addEventListener('input', ()=>{ state.nodes[hid].text = htext.textContent || ''; });
+    // Render children at depth 0
+    state.nodes[hid].children.forEach(id => renderNode(container, id, 0));
+  } else {
+    state.rootOrder.forEach(id => renderNode(container, id, 0));
+  }
   app.appendChild(container);
   // Defer guide measurement until nodes are in the document
   requestAnimationFrame(drawGuides);
@@ -147,7 +185,12 @@ function renderNode(parent, id, depth){
   parent.appendChild(row);
 
   // Clicking the glyph drills down (promote to scope root)
-  glyph.addEventListener('click', () => { state.scopeRootId = id; render(); });
+  glyph.addEventListener('click', () => {
+    state.scopeRootId = id;
+    const nid = ensureTrailingEmptyChild(state, id);
+    render();
+    if (nid) renderAndFocus(nid, 0);
+  });
 
   // On focus, just update state; do NOT re-render here or we will lose focus
   text.addEventListener('focus', () => { setFocus(state, id, node.text.length); });
@@ -266,7 +309,7 @@ function drawGuides(){
     while (ac) { chain.unshift(ac); ac = state.nodes[ac].parentId; }
     chain.forEach(aid => {
       if (!nextSiblingId(state, aid)) return; // only draw continuation
-      const ag = document.querySelector(`.row[data-id="${aid}"] .glyph`);
+      const ag = document.querySelector(`.row[data-id="${aid}"] .glyph, .heading[data-id="${aid}"] .glyph`);
       if (!ag) return;
       const gr = ag.getBoundingClientRect();
       const centerX = gr.left + gr.width/2 - rowRect.left + GUIDE_OFFSET;
