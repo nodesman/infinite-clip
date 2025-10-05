@@ -85,6 +85,8 @@ const MENU_SIZE = cssNumberVar('--menu-size', 22);
 const MENU_GAP = cssNumberVar('--menu-gap', 8);
 const GLYPH_GAP = cssNumberVar('--glyph-gap', 8);
 const BULLET_SIZE = cssNumberVar('--bullet-size', 8);
+const GUIDE_WIDTH = cssNumberVar('--guide-width', 1);
+const GUIDE_OFFSET = cssNumberVar('--guide-offset', -2);
 
 function render() {
   app.innerHTML = '';
@@ -107,7 +109,6 @@ function renderNode(parent, id, depth){
   let cur = node.parentId;
   while (cur) { ancestors.unshift(cur); cur = state.nodes[cur].parentId; }
   // Draw vertical lines only; align with bullet centers at each ancestor depth
-  const guideW = cssNumberVar('--guide-width', 2);
   ancestors.forEach((aid, i) => {
     const hasNext = !!nextSiblingId(state, aid);
     if (!hasNext) return; // only draw when continuation exists
@@ -115,7 +116,7 @@ function renderNode(parent, id, depth){
     // Align the vertical guide exactly with the ancestor bullet center.
     // i corresponds to ancestor depth (0 = root), so offset is i * INDENT_STEP.
     const bulletCenter = ROOT_LEFT_PAD + i * INDENT_STEP + MENU_SIZE + MENU_GAP + (BULLET_SIZE/2);
-    v.style.left = (bulletCenter - guideW/2) + 'px';
+    v.style.left = (bulletCenter + GUIDE_OFFSET - GUIDE_WIDTH/2) + 'px';
     guides.appendChild(v);
   });
   const menu = document.createElement('div'); menu.className='menu';
