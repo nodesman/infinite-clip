@@ -28,6 +28,8 @@ API
   - `focus` → `{ id, caret }`
   - `drilldown` → `{ id }`
 
+See EVENTS.md for a detailed event taxonomy (before/after hooks, payloads, and ordering guarantees).
+
 Styling tokens (CSS variables on the container)
 - `--indent-step` (default 40px)
 - `--root-left-pad` (default 44px)
@@ -45,4 +47,3 @@ Styling tokens (CSS variables on the container)
 Notes
 - Scoped (drilled‑down) root is shown as a heading (no visible bullet) and cannot be deleted. Hitting Enter in the heading creates a new child and focuses it.
 - Vertical guides are measured to real bullet centers after render; they stay aligned even if you change sizes or fonts.
-
