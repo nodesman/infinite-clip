@@ -91,6 +91,39 @@ const GUIDE_OFFSET = cssNumberVar('--guide-offset', 0);
 function render() {
   app.innerHTML = '';
   const container = document.createElement('div');
+  // Breadcrumbs
+  const bc = document.createElement('div'); bc.className='breadcrumbs';
+  const makeCrumb = (id, label, isCurrent=false) => {
+    const span = document.createElement('span'); span.className='crumb' + (isCurrent?' current':''); span.textContent = label;
+    if (!isCurrent) {
+      span.addEventListener('click', ()=>{
+        state.scopeRootId = id || null; render();
+      });
+    }
+    return span;
+  };
+  // Build chain
+  const chain = [];
+  if (state.scopeRootId && state.nodes[state.scopeRootId]) {
+    let c = state.scopeRootId; const tmp = [];
+    while (c) { tmp.unshift(c); c = state.nodes[c].parentId; }
+    chain.push(...tmp);
+  }
+  // Render breadcrumbs: All > ... > current
+  if (!state.scopeRootId) {
+    bc.appendChild(makeCrumb('', 'All', true));
+  } else {
+    bc.appendChild(makeCrumb('', 'All', false));
+    const sep = () => { const s=document.createElement('span'); s.className='crumb-sep'; s.textContent='›'; return s; };
+    bc.appendChild(sep());
+    chain.forEach((id, idx) => {
+      const isLast = idx === chain.length - 1;
+      const text = (state.nodes[id].text || '').trim() || 'Untitled';
+      bc.appendChild(makeCrumb(id, text, isLast));
+      if (!isLast) bc.appendChild(sep());
+    });
+  }
+  container.appendChild(bc);
   (state.scopeRootId ? [state.scopeRootId] : state.rootOrder).forEach(id => renderNode(container, id, 0));
   app.appendChild(container);
   // Defer guide measurement until nodes are in the document
@@ -113,8 +146,8 @@ function renderNode(parent, id, depth){
   row.appendChild(guides); row.appendChild(indentSpacer); row.appendChild(menu); row.appendChild(glyph); row.appendChild(text);
   parent.appendChild(row);
 
-  // Clicking the glyph focuses this row for keyboard interactions
-  glyph.addEventListener('click', () => { setFocus(state, id, 0); renderAndFocus(id, 0); });
+  // Clicking the glyph drills down (promote to scope root)
+  glyph.addEventListener('click', () => { state.scopeRootId = id; render(); });
 
   // On focus, just update state; do NOT re-render here or we will lose focus
   text.addEventListener('focus', () => { setFocus(state, id, node.text.length); });

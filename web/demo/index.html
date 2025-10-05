@@ -9,9 +9,9 @@
         --canvas-bg: #1f1f1f;
         --text-fg: #e6e6e6;
         --bullet-fill: #9a9a9a;         /* brighter grey fill */
-        --bullet-border-hover: #6f6f6f; /* darker border on hover */
+        --bullet-border-hover: #5e5e5e; /* darker hover ring (less bright than fill) */
         --bullet-size: 8px;             /* adjust to match target */
-        --bullet-ring: 3px;             /* hover ring thickness */
+        --bullet-ring: 6px;             /* hover ring thickness (more aggressive) */
         --guide-color: #8a8a8a;         /* indent connector color */
         --guide-width: 1px;             /* indent connector thickness */
         --guide-offset: 0px;            /* fine-tune horizontal align (negative = left) */
@@ -26,6 +26,11 @@
       html, body { height: 100%; margin: 0; }
       body { background: var(--canvas-bg); color: var(--text-fg); font: 14px/1.7 system-ui, -apple-system, Segoe UI, Roboto, sans-serif; }
       .canvas { max-width: 800px; margin: 24px auto; padding: 16px; }
+      .breadcrumbs { display:flex; align-items:center; gap:6px; color:#bdbdbd; font-size: 12px; margin: 0 0 8px var(--root-left-pad); user-select: none; }
+      .crumb { color:#d0d0d0; cursor:pointer; padding:2px 4px; border-radius:4px; }
+      .crumb:hover { background: rgba(255,255,255,0.06); }
+      .crumb.current { color: #ffffff; cursor: default; }
+      .crumb-sep { opacity:0.6; }
       .row { display: flex; align-items: center; padding: 12px 10px; border-radius: 6px; position: relative; }
       .row:hover { background: rgba(255,255,255,0.03); }
       /* Indent guides overlay */

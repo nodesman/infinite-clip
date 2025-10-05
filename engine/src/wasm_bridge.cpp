@@ -1,6 +1,7 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten/bind.h>
 #include "bullet_engine/types.hpp"
+#include "bullet_engine/state_utils.hpp"
 
 using namespace emscripten;
 using namespace bullet;
@@ -36,6 +37,12 @@ public:
   // Navigation helpers
   std::string prevVisible(const std::string& id) const { return prev_visible_id(s_, id); }
   std::string nextVisible(const std::string& id) const { return next_visible_id(s_, id); }
+  val ancestorsToRoot(const std::string& id) const {
+    val arr = val::array();
+    auto chain = ancestors_to_root(s_, id);
+    for (size_t i = 0; i < chain.size(); ++i) arr.set(i, chain[i]);
+    return arr;
+  }
 
   // Root order snapshot for rendering
   val rootOrder() const {
@@ -67,9 +74,9 @@ EMSCRIPTEN_BINDINGS(bullet_engine_module) {
       .function("setText", &EngineWasm::setText)
       .function("prevVisible", &EngineWasm::prevVisible)
       .function("nextVisible", &EngineWasm::nextVisible)
+      .function("ancestorsToRoot", &EngineWasm::ancestorsToRoot)
       .function("rootOrder", &EngineWasm::rootOrder)
       .function("children", &EngineWasm::children);
 }
 
 #endif // __EMSCRIPTEN__
-
