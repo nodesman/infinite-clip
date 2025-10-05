@@ -77,9 +77,20 @@ function moveUp(state, id){ const n=state.nodes[id]; const sibs=siblingsRef(stat
 function moveDown(state, id){ const n=state.nodes[id]; const sibs=siblingsRef(state,id); const i=sibs.indexOf(id); if(i+1<sibs.length){ [sibs[i],sibs[i+1]]=[sibs[i+1],sibs[i]]; return; } if(!n.parentId) return; const p=n.parentId, gp=state.nodes[p].parentId; state.nodes[p].children.splice(state.nodes[p].children.indexOf(id),1); if(!gp){ const j=state.rootOrder.indexOf(p); state.rootOrder.splice(j+1,0,id); n.parentId=''; } else { const gpc=state.nodes[gp].children; const j=gpc.indexOf(p); gpc.splice(j+1,0,id); n.parentId=gp; } }
 
 function deleteEmptyAtId(state, id){ const n=state.nodes[id]; if(!n || n.text.length>0) return; if(n.children.length) return; const isRoot = !n.parentId; if(isRoot && state.rootOrder.length===1){ n.text=''; setFocus(state, id, 0); return; }
+  // Prevent deletion of scoped heading if ever targeted
+  if (state.scopeRootId && id === state.scopeRootId) { state.nodes[id].text=''; setFocus(state, id, 0); return; }
   const prev = prevVisibleId(state,id), next=nextVisibleId(state,id);
+  const parent = state.nodes[id].parentId;
   const sibs=siblingsRef(state,id); sibs.splice(sibs.indexOf(id),1); delete state.nodes[id];
   if(state.rootOrder.length===0){ const rid=newId(); state.nodes[rid]={id:rid,parentId:'',text:'',children:[]}; state.rootOrder=[rid]; setFocus(state,rid,0); return; }
+  // If scoped, avoid focusing the heading; prefer next sibling; if none, create a new empty child under scoped root
+  if (state.scopeRootId && prev === state.scopeRootId) {
+    if (next) { setFocus(state, next, 0); return; }
+    // If parent is the scoped root and now has no children, create one
+    if (parent && parent === state.scopeRootId && state.nodes[parent].children.length === 0) {
+      const nid = appendEmptyChild(state, parent); setFocus(state, nid, 0); return;
+    }
+  }
   const nf = prev || next || state.rootOrder[0]; setFocus(state,nf, state.nodes[nf].text.length);
 }
 
